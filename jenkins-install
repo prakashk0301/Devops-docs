@@ -1,0 +1,19 @@
+sudo yum install -y git aws-cli
+sudo yum install fontconfig java-17-openjdk -y
+sudo alternatives --config java
+
+(In this command point to the latest/or required java version by selection)
+
+Step 2.  Install Jenkins : Add the Jenkins repository to the yum repos and install Jenkins from there.
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo     https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo amazon-linux-extras install epel -y
+sudo yum install daemonize -y
+sudo yum install -y jenkins
+sudo service jenkins start
+sudo systemctl enable jenkins
+
+Step 3. That’s it! Now you can go to browser and access Jenkins URL http://<instance public ip>:8080 
+Copy password sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+Install all the suggest plugin and done
