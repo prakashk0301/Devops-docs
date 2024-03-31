@@ -1,0 +1,29 @@
+Install maven:
+
+Download maven tar file from official link (https://dlcdn.apache.org/maven/maven-3/) select the latest or as per requirement.
+
+wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
+mkdir -p /usr/local/apache-maven/
+tar xzvf apache-maven-3.9.6-bin.tar.gz -C /usr/local/apache-maven
+
+
+Create bashrc file (can be used to customize the user's shell environment, including setting environment variables, defining aliases, and creating functions)
+
+
+sudo vi ~/.bashrc
+
+
+export M2_HOME=/usr/local/apache-maven/apache-maven-3.9.6
+export MAVEN_HOME=/usr/local/apache-maven/apache-maven-3.9.6
+export PATH=${M2_HOME}/bin:${PATH}
+
+sudo chmod 777 ~/.bashrc
+source ~/.bashrc                                   (to reflect the changes)
+
+mvn -v
+
+Copy maven and JDK executable path
+
+which git
+
+Copy git executable path
