@@ -1,0 +1,27 @@
+Create a new ec2 instance : (Amazon Linux 2 AMI (HVM), SSD Volume Type)
+
+sudo yum install -y java-1.8.0
+sudo yum install -y tomcat
+sudo systemctl start tomcat
+sudo systemctl status tomcat
+sudo systemctl enable tomcat                             ----> to start the service for all time (Automatic)
+sudo yum install -y tomcat-webapps tomcat-admin-webapps tomcat-docs-webapp tomcat-javadoc
+cd /usr/share/tomcat/conf
+
+
+---------------------------------------------------------------------
+add following contents to tomcat-users.xml file at last, before you add
+remove </tomcat-users> from file as we are addding same at the end of file, then restart services
+
+
+  <role rolename="tomcat"/>
+  <role rolename="role1"/>
+  <role rolename="manager"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-gui"/>
+  <user username="tomcat" password="tomcat" roles="tomcat"/>
+  <user username="both" password="tomcat" roles="tomcat,role1"/>
+  <user username="role1" password="tomcat" roles="role1"/>
+  <user username="prakash" password="Welcome@123" roles="manager-gui,manager-script "/>
+
+</tomcat-users>
