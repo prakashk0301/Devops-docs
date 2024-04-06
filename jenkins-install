@@ -1,6 +1,4 @@
 sudo yum install -y git aws-cli
-sudo yum install fontconfig java-17-openjdk -y
-or
 sudo yum install java-17-amazon-corretto
 sudo alternatives --config java
 
