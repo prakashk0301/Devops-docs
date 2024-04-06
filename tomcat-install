@@ -14,6 +14,7 @@ cd /usr/share/tomcat/conf
 add following contents to tomcat-users.xml file at last, before you add
 remove </tomcat-users> from file as we are addding same at the end of file, then restart services
 
+sudo vi tomcat-users.xml
 
   <role rolename="tomcat"/>
   <role rolename="role1"/>
