@@ -1,0 +1,1272 @@
+Kubernetes Docs (k8s):-
+
+
+Kubernetes is an open-source container orchestration platform that enables the operation of an elastic web server framework for cloud applications. Kubernetes can support data center outsourcing to public cloud service providers or can be used for web hosting at scale. Website and mobile applications with complex custom code can deploy using Kubernetes on commodity hardware to lower the costs on web server provisioning with public cloud hosts and to optimize software development processes.
+
+
+
+
+https://k21academy.com/docker-kubernetes/container-orchestration-and-management-options/
+
+https://medium.com/@maheshwar.ramkrushna/understanding-the-docker-container-lifecycle-states-and-transitions-28dd0bcbf753
+
+Enable Kubernetes on Docker desktop:
+
+
+
+
+IMP links:
+
+EKS: https://www.youtube.com/watch?v=v5vyC_C-juU
+https://www.youtube.com/watch?v=QThadS3Soig
+https://www.youtube.com/watch?v=aZd0UolVwD4
+
+
+YAML: https://www.youtube.com/watch?v=cdLNKUoMc6c
+
+
+Pod: https://kubernetes.io/docs/concepts/workloads/pods/
+
+3-Tier: https://ibm.github.io/kube101/Lab3/
+
+K8s vs docker swarm: https://medium.com/edureka/kubernetes-vs-docker-45231abeeaf1
+
+
+Readiness & Liveness : https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+
+Kubernetes Architecture:
+https://www.appvia.io/blog/components-of-kubernetes-architecture
+
+RC vs RS vs Deployment:
+https://www.mirantis.com/blog/kubernetes-replication-controller-replica-set-and-deployments-understanding-replication-options/
+
+https://www.edureka.co/community/43891/difference-between-replica-set-and-replication-controller
+
+https://stackoverflow.com/questions/36220388/what-is-the-difference-between-replicaset-and-replicationcontroller
+
+
+
+
+Managed by customer (self managed): you can install anywhere- VMware, Datacenter, ec2 etc
+
+Customer will be responsible for everything
+Ex: adding new nodes to k8s cluster, Managing Kubernetes Master, Backup, Archievle, Network, Storage, LoadBalancing, domain services, security etc
+
+You will be responsible only code development, code deployment, writing kubernetes manifest file, docker images etc
+
+
+To install kubernetes: 
+Kubeadm {bootstrap method-> to create a k8s cluster,  generate a key on one of the vm (master), paste the key to another node(worker node) }
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+KOPS {Kubernetes Operations}
+https://kubernetes.io/docs/setup/production-environment/tools/kops/
+
+KubeSpray:
+https://kubernetes.io/docs/setup/production-environment/tools/kubespray/
+
+
+
+Managed Kubernetes {Managed by cloud provider}
+Ex: AWS EKS, Azure AKS, Google GKE, RedHat OpenShift etc
+
+Ex: adding/removing new nodes to k8s cluster, Managing Kubernetes Master (Control panel), Backup, Archievle, Network, Storage, LoadBalancing, domain services will be managed by cloud provider
+
+You will be responsible only code development, code deployment, writing kubernetes manifest file, docker images etc
+
+===============
+Docker swarm or Docker compose :- native container management tool -> create and manage container (till 2017/18)
+
+
+Limitation of Docker swarm or Docker compose: 
+It can manage a few hundred containers easily (100-500), it can not manage thousands of containers.
+While k8s can manage millions of container 
+
+It doesn’t support load balancing, you need to manage load balancing separately .
+While k8s has inbuilt load balancing feature, it distributes the load equally to containers(pod)
+
+	
+
+https://medium.com/edureka/kubernetes-vs-docker-45231abeeaf1
+
+
+
+==============
+
+
+Pod: pod is the smallest unit that can be deployed in kubernetes, it is combination of containers (one or more) only {you don’t to deploy any container directly, simply create pod, pod will create container automatically in the backend}
+
+Note: never run web and database containers in the same pod.
+
+We can also deploy helping container {to process script/data/to pass a variable}, helping containers are temporary container, k8s creates helping container during execution only
+
+
+
+
+
+
+
+
+You can run kubenetes command on powershell/git bash/command prompt (Docker Desktop)
+
+kubectl get pod                         —----> to list pod
+
+
+Syntax:
+kubectl run -it --image=<image name> <pod name>     —----> create & start pod
+
+ex:
+kubectl run -it --image=nginx:latest mynginx             —---> create & start nginx pod
+
+
+
+***if nginx:latest image is not available locally, then it pulls the image from docker registry (Docker Hub/AWS ECR/company managed docker reg) & creates pod
+
+
+
+kubectl get pod 
+
+kubectl get pod -o wide                             —-> list wider output                               
+
+*** kubernetes assigns IP to pod only not to the container 
+(because we create pod only not container)
+
+
+
+Troubleshooting command:-
+kubectl describe pod <pod name>                —---> list property of pod
+
+kubectl logs <pod name>                              —---> to check the logs of pod
+
+kubectl exec -it <pod name> /bin/bash          —---> you can go inside the pod
+
+
+====How to expose deployed pod externally (access from URL/internet)
+We can expose applications (deployed pods) by creating a service.
+
+If you want to expose your application (externally mean outside cluster) then go ahead with NodePort or LoadBalancer type service
+
+https://kubernetes.io/docs/concepts/services-networking/service/
+
+Service: there are 3 types of service
+
+ClusterIP: it exposes pod internally (within cluster), you can not expose externally.
+We can use ClusterIP for pod to pod communication, 
+Ex: frontend pod and backend pod
+
+
+
+NodePort: it exposes pod externally (outside the cluster).
+It has a port range 30000-32767
+
+Syntax:
+
+kubectl expose pod <pod name> --port=<app port> --type=NodePort
+
+
+Ex:
+
+kubectl expose pod mynginx --port=80  --type=NodePort
+
+kubectl get svc
+Or
+
+kubectl get service
+
+How to access from URL:
+
+http://localhost:<NodePort>
+
+
+
+
+
+
+
+In the above screen shot, kubectl get pod -o wide command will tell you the IP of pod.
+
+Once you create service for pod (expose command creates the service for pod) just describe it and check the Endpoint, Endpoint is nothing the Pod IP
+
+
+
+Similarly you can create other pods and respective services.
+
+
+
+
+You can access Jenkins dashboard (deployed application)
+
+Syntax: http://localhost:<nodeport>
+
+http://localhost:31537
+
+(change NodePort value as per your system)
+
+**limitation of NodePort: it can expose max 2767 NodePorts
+
+** you can use NodePort for testing, dev or qa env
+** you also need to open NodePort in security group, it may affect your prod environment (vulnerable)
+
+
+LoadBalancer: it exposes pod externally (outside the cluster)
+If we are using cloud managed kubernetes service (EKS) then you can expose your pod outside the cluster using LoadBalancer Service type, kubernetes creates NLB and ALB type of LoadBalancer Service
+
+Syntax:
+
+kubectl expose pod <pod name> --port=<app port> --target-port=<app port> --type=LoadBalancer
+
+
+***default LoadBalancer type is ALB
+
+
+==============Docker Architecture
+https://www.edureka.co/blog/docker-architecture/
+
+Docker daemon is responsible for all the docker operations such as image creation, container creation, deletion, management, auto scale etc.
+That’s why docker can manage few hundred containers easily 
+
+
+===============Kubernetes Architecture
+** kubernetes can manage million of pods (containers)
+
+https://platform9.com/blog/kubernetes-enterprise-chapter-2-kubernetes-architecture-concepts/
+https://medium.com/@shubhamdeshmukh8531/basics-of-kubernetes-architecture-4ed4110caf70
+
+
+There are 2 component in kubernetes cluster (control plan + worker nodes)
+a/ control plane
+b/ worker node
+
+
+
+a/ control plan:
+
+
+1. Api-server: API-server is responsible for user authentication, authorize (creation/deletion/update/get/put etc), it is also responsible for kubernetes operations ex: command is correct or not
+
+
+2. Scheduler: scheduler is responsible for scheduling of pod across the nodes in cluster, 
+
+
+3. ETCD: it stores all the cluster information in key and value pairs, you also can call it a database of clusters. Etcd gets all the worker node information from kubelet
+Ex: Number of node, number of pod, number of network, pod version, image in the pod, previous pod info, worker node version, cluster version, available cpu/memory/disk on worker node etc
+It stores every single information
+
+4. Controller Manager: Controller manager is a daemon that runs core control loops, it checks the state of cluster, pod desired state (if pod goes down then pod recreation).
+Controller manager integrates k8s cluster with cloud vendor, AZ, storage, network etc
+
+
+
+b/ worker node component: 
+
+1. Kubelet: Kubelet is responsible for following activity
+Once it receives instruction control plan then it creates/maintains/deletes pod on worker node
+It shares all the node information with etcd
+
+             2. Kube Proxy: is responsible for pod communication, it also forwards user request to      correct pod
+
+
+
+
+=====================
+There are 2 type of strategy for kubernetes resource creation:
+Imperative method (command line method)
+
+kubectl run -it --image=<image name> <pod name>  
+
+
+Declarative method (k8s manifest or yaml based method)
+
+vi mypod.yaml     (file name)
+
+apiVersion: v1
+kind: Pod                               #Service, Deployment, kubernetes resource type
+metadata:
+  name: nginx                       #name of your k8s resources
+Spec:                                   #specification of your container
+  containers:
+  - name: nginx                           #name of the container
+    image: nginx:1.14.2               #docker image name
+    ports:
+      - containerPort: 80        #image port number
+
+
+How to create kubernetes resource:- 
+kubectl create -f <file name>
+
+Or
+
+Kubectl apply -f <file name>
+
+
+Q. Difference between imperative and declarative method to provision k8s resources?
+https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/Imperative-vs-declarative-Kubernetes-commands-Whats-the-difference
+
+
+
+YAML: https://www.youtube.com/watch?v=cdLNKUoMc6c
+
+AWS CI/CD tool: https://www.youtube.com/watch?v=e90rz62rk-8
+
+ 
+
+Install yaml/yml extension  (yet another markup language)
+Vs code -> setting -> extension -> yaml
+
+You also can install Docker and kubernetes extension
+
+
+YAML follows key: value concept
+
+
+key: value                     	 
+
+# rules
+# 1. there is a space after :
+# 2. add a space after -
+# 2, 4, 8, 10, 12 spaces
+# use # to comment
+
+institute: ethans
+image: pkw0301/mydevops:latest
+port: 80
+fruit: mango
+
+# In YAML we have concept of ARRAY/LIST (similar type of object, key will be common)
+
+Institute: ethans
+Institute: abc
+Institute: pqr
+
+# in yaml key must be unique, to make key unique we can use ARRAY or LIST concept
+# to define values in ARRAY, go the next line 2 space then - then a space than actual value
+# ARRAY/LIST follows ordered collection (sequentially)
+
+Institutes:
+  - ethans
+  - abc
+  - pqr
+
+
+fruits:          	# common key
+  - mangos       	# value1
+  - banana       	# value2
+  - grapes       	# value3
+
+
+# Dictionary: to define the properties of value, Dictionary follows un-ordered collection
+# if you change the sequence of property, it will not create any impact of key
+
+Fruits:
+  - mango:            	#you can define properties of mango
+  	color: yellow
+  	weight: 100g
+  	quality: A
+  	origin: india
+  - banana:
+  	color: yellow
+  	weight: 10g
+  	origin: EU
+  - grapes:
+  	weight: 50g
+  	origin: China
+    
+# Assignment:
+# write a yaml file for an institute, 3 department (HR, finance, IT), add 2
+# employees in each department, also add contact number and name of employee
+
+Institutess:
+  department:                              	#(2 spaces)
+    - HR:                                  	#(4s)
+        employees:                         	#(8s)
+          - employee1:                     	#(10s)
+              name: prakash                	#(12s)
+              contnumber: 1234567890
+          - employee2:
+              name: jatin
+              contnumber: 12345675678
+    - Finance:
+      employees:
+        - employee3:
+            name: Nikhat
+            contnumber: 123454123
+        - employee4:
+            name: Harleen
+            contnumber: 12367890
+	- IT:
+    	  employees:
+          - employee5:
+          	  name: Noushad
+          	  contnumber: 563454123
+          - employee6:
+              name: Shadika
+          	  contnumber: 157890
+
+
+# write a yaml file for a city (pune), define locations 2,
+# and define number of citizen (3), their education, native place
+
+City:
+  Pune:
+    Location:
+      - WAKAD:                               	#ARRAY
+          citizen:                           	#Dictionary
+            - citizen1:                      	#ARRAY
+                education: BE                	#Dictionaries in Dictionary
+                nativeplace: vellore
+        	- citizen2:                      	#ARRAY
+                education: MBA               	#Dictionaries in Dictionary
+                nativeplace: Kerala
+    	 
+      - WAGHOLI:                             	#ARRAY
+          citizen:                          	 
+            - citizen3:                      	#ARRAY
+                education: BE                	#DICTIONARIES in Dictionary
+                nativeplace: Odisha
+            - citizen4:
+                education: MBA
+                nativeplace: Delhi
+
+
+=============================================
+Kubernetes Manifest file (yaml files)
+
+apiVersion values are fixed for kubernetes resources: 
+(Pod, Services, Deployment, Ingress, Storage, Secret, ConfigMap etc )
+
+
+Pod, Service,Secret, PersistentVolume (PV), PersistentVolumeClaim (PVC)  -> v1
+Deployment, StatefulSet, DaemonSet  -> apps/v1
+
+
+
+***v1 version is stable —> v1 is recommended for Prod
+
+https://blog.knoldus.com/what-is-apiversion-in-kubernetes-part-1/
+
+
+
+===========pod manifest file https://kubernetes.io/docs/concepts/workloads/pods/
+
+my-pod.yaml
+
+
+apiVersion: v1             	# change the apiVersion value as per k8s resources
+kind: Pod                    	# resource type
+metadata:                   	# data about resource ex: name, namespace, labels of k8s resources  	 
+  name: mynginx1             	#name of k8s resources
+  labels:
+    env: dev
+    author: prakash
+    team: team1
+spec:                                       	#specification of container
+  containers:
+  - name: mynginx1                                     	#name of container
+    image: nginx:1.14.2                               	#docker image
+    ports:
+      - containerPort: 80                              	#application port  
+
+
+
+
+How to create k8s resources from manifest or yaml file
+
+kubectl apply -f <file name>
+
+
+
+========Service manifest file
+https://kubernetes.io/docs/concepts/services-networking/service/
+
+vi my-pod-service.yaml 
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:                     	# selector value should match with pod's label
+    env: dev
+    author: prakash
+    team: team1
+  ports:
+    - protocol: TCP
+      port: 80                 	#application port
+       targetPort: 80           	#application port
+    type: NodePort                	#ClusterIP, NodePort, LoadBalancer
+
+
+
+#label and selector should be unique in cluster
+#now k8s will check all the resources in the cluster(also applicable for future pods).
+#if selector value is matching with pod's label then k8s will associate service with that pod
+
+
+
+
+
+
+
+
+
+
+
+===========
+***you can create one manifest file for both pod and services, --- (three hyphen) to separate the resources in k8s
+
+
+vi pod-service.yaml
+
+apiVersion: v1             	# change the apiVersion value as per k8s resources
+kind: Pod                    	# resource type
+metadata:                   	# data about resource ex: name, namespace, labels of k8s resources  	 
+  name: mynginx2             	#name of k8s resources
+  labels:
+    env: dev
+    author: prakash
+    team: team2
+    class: devops2
+spec:                                       	#specification of container
+  containers:
+  - name: mynginx2                                     	#name of container
+    image: nginx:1.14.2                               	#docker image
+    ports:
+      - containerPort: 80                              	#application port
+ 	 
+---                         	# we can use --- (three hyphen) to separate the resources in k8s
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service1
+spec:
+  selector:                     	# selector value should match with pod's label
+    env: dev
+    author: prakash
+    team: team2
+    class: devops2
+  ports:
+    - protocol: TCP
+      port: 80                 	#application port
+      targetPort: 80           	#application port
+  type: NodePort                	#ClusterIP, NodePort, LoadBalancer 	
+
+
+kubectl apply -f pod-service.yaml
+
+================Deployment
+
+Pod challenges: 
+K8s is not recreating pod after pod deletion.
+Number of pod: it can create only single pod (a pod can handle few hundred user requests easily) , it doesn’t auto scale feature (RC- ReplicationController)
+
+
+
+Deployment: Deployment is the highest unit that can be deployed in kubernetes
+It supports auto scale feature (RC)
+It supports Load Balancing
+It supports MatchLabel feature (it will help us to connect to the services)
+
+
+Sample deployment.yaml file
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+
+
+vi deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment                        #type of kubernetes resource
+metadata:
+  name: nginx-deployment
+  labels:                 	#deployment label
+    app: nginx
+spec:
+  replicas: 3              	#create 3 pod
+  selector:
+    matchLabels:           	# pod label
+      app: nginx
+      appname: synchronization
+     day: tuesday
+  template:                	#container property
+    metadata:
+      labels:
+        app: nginx
+        appname: synchronization
+        day: tuesday
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.14.2
+          ports:
+          - containerPort: 80
+- - -
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service1
+spec:
+  selector:          	# selector value should match with
+    app: nginx         	#deployment matchLabels
+   appname: synchronization
+   day: tuesday
+ ports:
+   - protocol: TCP
+     port: 80            		 #application port
+     targetPort: 80      		 #application port
+  type: NodePort           		 #ClusterIP, NodePort, LoadBalancer 	
+
+
+
+
+
+
+
+
+
+Create deployment from yaml file:- 
+
+kubectl apply -f <file name>   
+
+kubectl get deployment                #list all the deployment
+
+
+
+3/3 means-  3 pod replicas are running out of 3
+
+kubectl get pod
+
+
+Pod will be created by deployment
+
+
+We will get services as well, service endpoint would be pod’s IP  
+
+
+
+
+How to ensure that Service endpoints are pod?
+
+kubectl get pod -o wide
+
+
+
+
+You can describe the deployment
+
+kubectl get deployment
+kubectl describe deployment <name of your deployment>
+
+
+
+
+
+
+as we know that k8s maintains the desired state, If you delete one of pod from deployment , so it should provision maintain the RC (desired state) and create new pod, also new pod will be added to the services backend (endpoint)
+
+—--------------------------------Image pull policy
+https://kubernetes.io/docs/concepts/containers/images/
+
+
+1: Always -> k8s always pulls the image from the docker container registry. 
+
+2. IfNotPresent -> if image is not present locally then pull the image, if image is present locally then don’t pull the image from the container registry
+
+IfNotPresent is default policy
+
+
+3. Never -> do not pull image from the docker container registry
+(not recommended)
+
+
+Example: 
+
+apiVersion: apps/v1
+kind: Deployment                        #type of kubernetes resource
+metadata:
+  name: nginx-deployment
+  labels:                 	#deployment label
+    app: nginx
+spec:
+  replicas: 3              	#create 3 pod
+  selector:
+    matchLabels:           	# pod label
+      app: nginx
+      appname: synchronization
+     day: wednesday
+  template:                	#container property
+    metadata:
+      labels:
+        app: nginx
+        appname: synchronization
+        day: wednesday
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.14.2
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 80
+
+
+
+
+K8s will download (pull) image always from container registry
+
+imagePullPolicy concept will help us to rollout new code changes  
+
+** imagePullPolicy: Always  → it increase the time 
+
+
+
+
+=================Helm chart
+
+Helm chart is a package manager in kubernetes, we also can use it a deployment tool
+
+Download helm chart-
+
+https://helm.sh/docs/intro/quickstart/
+https://helm.sh/docs/intro/install/
+
+For windows:
+First install chocolatey (package manager) -> https://chocolatey.org/install
+Open powershell as admin and install chocolatey
+
+
+
+
+Then download helm package on your system:
+
+choco install kubernetes-helm
+
+Helm commands:- 
+
+helm version                     —-> to check helm version
+
+
+Create first helm chart:
+
+helm create <chart name or app name> 
+
+ex: helm create myapp 
+
+    
+
+
+You need to update only {{ .Values.service.type }}
+
+
+Actual values are define in values.yaml file 
+You can update the values in values.yaml file 
+
+Ex: 
+
+
+Similarly you can update other values as per the requirements
+
+Go to the values.yaml , and check service section then check type
+
+*** you don’t need to hardcode the values in Service.yaml, Deployment.yaml, hpa.yaml etc
+
+You can create k8s resources, Once all the values are updated.
+
+helm install <chart name> .
+
+ex: helm install myapp .
+
+ex: helm install myapp --f Chart.yaml
+
+Where:->  . (dot) -> chart.yaml in the current directory
+
+
+
+Revision: 1  (deployment number :first deployment)
+
+You can modify helm chart (yaml file), and you will get Revision number 2
+
+
+After upgrade if customers are raising concern then how to rollback (how to go back to the older version)
+
+Last Deployment date: Mon 1 Feb 2021
+
+
+This command creates k8s resources and helm chart
+
+helm ls
+Or
+helm list       —--> you will get deployed chart name
+
+
+kubectl get deployment         —----> you will be able to see myapp deployment
+
+kubectl get pod                     —----> you will be able to see myapp pods
+
+kubectl get services             —----> you will be able to see myapp services
+
+
+*** after first helm deployment , you can update some values (ex: image tag, replicaCount etc) and run below command to reflect / rollout the changes
+
+
+
+*** you can create new docker image
+vi Dockerfile
+
+FROM nginx
+LABEL author=prakash
+COPY index.html  /usr/share/nginx/html
+
+
+Build and push the docker image to dockerhub
+
+
+Also update image repository in value.yaml 
+
+
+
+
+We also can update version in Chart.yaml
+
+
+
+
+
+How to deploy changes/ rollout new features
+(you don’t need to run helm install again and again)
+
+Syntax:  helm upgrade <chart name> .
+
+Ex:
+
+
+
+***helm install <chart name > . for first time deployment
+*** later on we need to upgrade the deployed chart
+
+
+
+
+**** How to roll-back (undo the changes)
+Why roll-back ???
+After code deployment , if customers are complaining then you can go back to the previous version
+
+Or
+
+If deployment is not working properly then you can redeploy any older version
+
+
+
+First check the deployment history:
+helm history <chart name>
+
+
+
+REVISION 1,2,3,4       —-> how many times we have deployed the helm chart
+Where 4 is the latest one
+
+
+If you want to rollback the changes then 
+
+Syntax: helm rollback <chart name> <release or Revision number>
+
+Ex: helm rollback myapp 3
+
+
+** you will get a new revision ID for any rollback
+
+
+
+
+
+
+=========Helm chart can be shared with other team member by archiving
+
+helm package <chart-path>          # Packages a chart into a versioned chart archive file.
+
+
+
+
+Now you can upload .tgz file (helm archived) to github repo
+
+
+============How to delete helm chart (do not delete helm chart)
+
+helm ls                 —----> list available deployed chart locally
+
+helm delete <chart name>
+
+
+
+Once you delete helm chart, automatically it deletes pods, svc, deployment etc
+
+
+
+** After helm chart deletion you need to install it again (helm install <chartname> .) 
+
+=========================
+Front-end and backend connectivity in k8s:
+https://kubernetes.io/docs/tasks/access-application-cluster/connecting-frontend-backend/
+
+https://sergiosicari.medium.com/nginx-php-fpm-and-mysql-on-kubernetes-local-environment-7d01b8e6feae
+
+https://kubernetes.io/docs/tutorials/stateful-application/mysql-wordpress-persistent-volume/
+
+=========namespace: namespace is nothing but a virtual cluster in a physical cluster.
+
+
+
+
+
+Solution: by creating custom namespace:
+
+
+
+
+Use case:  you can create separate/isolated virtual cluster for teams or application or env (Dev and QA)
+
+
+There are 4 default namespaces.
+Default -> by default k8s creates resources (pod, services etc) in default namespaces. 
+If you are not providing any namespace field in yaml file then k8s provisions resources in default namespace
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+	image: nginx:1.14.2
+	ports:
+	- containerPort: 80
+
+Or
+
+kubectl run -it --image=httpd myapache
+
+kubectl get pod          —---> this command will list all the pod of default namespace
+Or
+kubectl get pod -n default
+
+
+
+
+There is no namespace in yaml or command line, so pod will be provisioned in default ns
+
+** default ns is reserved for user
+
+kube-system: this namespace is reserved for system related resources
+Ex: etcd, kubeapi server, scheduler, kubelet etc
+
+kubectl get ns         —--> list all the namespace
+
+
+How to list pod(resources) of any specific namespace
+
+Syntax: kubectl get pod -n <namespace name>
+
+Ex: kubectl get pod -n kube-system
+
+** we can not use kube-system namespace b’cas this name is ns is reserved for system
+
+kube-node-lease  —> this namespace is reserved for node lease (node related info will be stored in this ns)
+
+kubectl get pod -n kube-node-lease
+
+** we can not use kube-node-lease namespace as this ns is reserved for node lease
+
+
+Kube-public  → kube-public This namespace is created automatically and is readable by all users (including those not authenticated). This namespace is mostly reserved for cluster usage, in case that some resources should be visible and readable publicly throughout the whole cluster.
+
+
+We also can create custom namespace:
+
+kubectl create ns <namespace name>
+Or
+kubectl create namespace <namespace name>
+
+
+Ex: kubectl create ns namespace-app1-dev
+
+kubectl get ns
+
+
+How to create pods (or any k8s resource) in custom namespaces???
+Ans: we can mention namespace under metadata field. 
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: namespace-app1-dev
+spec:
+  containers:
+  - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+- - -
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service1
+  namespace: namespace-app1-dev
+spec:
+  selector:          	# selector value should match with
+    app: nginx         	#pod Labels
+ ports:
+   - protocol: TCP
+     port: 80            		 #application port
+     targetPort: 80      		 #application port
+  type: NodePort           		 #ClusterIP, NodePort, LoadBalancer 
+
+
+kubectl apply -f  <file name>
+
+kubectl get pod -n namespace-app1-dev
+kubectl get svc -n namespace-app1-dev	
+
+
+**namespace is an isolated term 
+
+
+How to delete the custom namespace (we can not default namespace):-
+
+kubectl delete ns <namespace>
+Or
+kubectl delete namespace <namespace>
+
+
+================EKS (elastic kubernetes cluster)
+
+
+
+
+—--------hpa (horizontal pod autoscaling)
+
+Problem statement: kubernetes create pods based on replicaCount , if replicaCount value is 2 then you will get 2 pods.
+
+1 pod can handle 50-100 user requests easily (it depends on application to application)
+
+If user count is unpredictable (ex: e-commerce apps, booking website, gaming apps etc) then we can not hardcode replicaCount.
+
+We need to look for solution where pod can be auto scaled based on some threshold value
+/cpu utilization/ memory utilization
+
+Solution: hpa.yaml
+We can mention min and max pod count, also we can set threshold
+
+
+
+
+
+
+
+You can enable hpa:
+
+Update value.yaml
+
+
+
+
+
+
+
+You can refer hpa.yaml
+
+
+
+Now pod will auto scale based cpu utilization
+
+
+
+
+
+Commands:
+
+helm install myapp .
+kubectl get pod
+helm upgrade myapp . 
+
+
+
+================you can connect to EKS cluster from cloud shell or local docker desktop
+
+How to connect from the local docker desktop-
+
+• install aws cli on your system
+
+• open powershell or cmd and type:
+
+aws configure
+
+and provide access key secret key and default region code
+
+aws sts get-caller-identity
+aws eks --region <region> update-kubeconfig --name <cluster_name>
+
+ex:
+aws eks --region eu-central-1 update-kubeconfig --name my-eks-prod
+kubectl get pod
+kubectl config get-contexts
+
+
+*** make sure you select the correct context. if you want to create pod in local docker desktop then
+select local desktop context, if you want to perform lab in EKS then select EKS context
+(switch to correct context)
+
+kubectl config use-context <context name>
+
+ex:
+kubectl config use-context arn:aws:eks:eu-central-1:0408722199567:cluster/my-eks-prod
+
+kubectl get pod
+
+=================DaemonSet
+
+How can we provision pods on each of the worker nodes?
+
+It ensures to create pod on each of the worker node
+
+Initially, If the node count is 2 then DeamonSet provision 2 pods on each worker node.
+If node count increases from 2 to 3 then DeamonSet will create a new pod (pod3) on a newly created node.
+
+**Replicas concept is not applicable for DaemonSet 
+
+** helm chart doesn’t create daemonset.yaml by default. You need to create yaml/manifest separately
+
+
+https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+
+
+vi my-daemonset.yaml
+
+apiVersion: apps/v1
+kind: DaemonSet             	#resource type is Daemonset
+metadata:
+  name: mydaemonset
+  namespace: default
+  labels:
+    k8s-app: prakash
+spec:
+  selector:                  	#there is NO replicas
+    matchLabels:
+    k8s-app: prakash
+  template:
+     metadata:
+       labels:
+         k8s-app: prakash
+     spec:
+       containers:
+         - name: mynginx-daemonset
+            image: nginx
+            resources:              	 
+              limits:                 	#resource limit can be set
+                memory: 200Mi
+              requests:               	#you can request cpu and memory
+                cpu: 100m             	#cpu will be reserved for pod
+                memory: 200Mi         	#memory will be reserved for pod
+
+
+ 
+
+kubectl apply -f <file name>
+
+kubectl get pod -o wide
+kubectl get daemonset
+
+
+
+
+
+
+You can update worker-node count:
+
+EKS cluster- > compute -> node-group -> edit -> change min/max/desired instance count (auto scale)
+
+
+
+**dont forget to delete daemonset
+kubectl delete daemonset <name of daemonset>
+
+
+===================FrontEnd and Backend Application deployment in kubernetes
+
+
+
+
+
+Reference link: https://kubernetes.io/docs/tasks/access-application-cluster/connecting-frontend-backend/
+
+
+
+Create backend deployment:
+
+kubectl apply -f https://k8s.io/examples/service/access/backend-deployment.yaml
+kubectl get deployment
+kubectl get pod
+
+
+Create backend service:
+
+kubectl apply -f https://k8s.io/examples/service/access/backend-service.yaml
+kubectl get svc
+
+
+
+Create front-end deployment and service(LoadBalancer):
+
+kubectl apply -f https://k8s.io/examples/service/access/frontend-deployment.yaml
+kubectl apply -f https://k8s.io/examples/service/access/frontend-service.yaml
+kubectl get deployment
+kubectl get svc
+
+
+
+
+
+You can test your application by hitting frontend LoadBalancer service:
+
+kubectl get svc
+
+curl http://ad7ca4321f0eb4f8f94dd900a508ba77-1523445406.eu-central-1.elb.amazonaws.com
+
+Or
+
+Copy Loadbalancer URL and paste browser
+
+** you will get a hello message in the browser.
+
+
+
+
+**** you can edit backend deployment and point to your custom docker image
+
+kubectl get deployment
+kubectl edit deployment backend
+
+
+Change docker image to your custom image:
+(ex: pkw0301/nginxhelmchart:latest)
+
+And save the changes (file-> save)  and close notepad tab
+
+
+kubectl describe deployment backend
+
+Refresh the browser, now you will see updated content
+
+
+
+**dont forget to delete Deployment and services
+
+
+==============
+
+sudo mkdir -p $HOME/bin 
+sudo cp ./kubectl $HOME/bin/kubectl 
+export PATH=$HOME/bin:$PATH
+
+
