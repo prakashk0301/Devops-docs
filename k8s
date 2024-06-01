@@ -1039,11 +1039,6 @@ Or
 kubectl delete namespace <namespace>
 
 
-================EKS (elastic kubernetes cluster)
-
-
-
-
 —--------hpa (horizontal pod autoscaling)
 
 Problem statement: kubernetes create pods based on replicaCount , if replicaCount value is 2 then you will get 2 pods.
@@ -1091,8 +1086,43 @@ kubectl get pod
 helm upgrade myapp . 
 
 
+helm cheatsheet: https://phoenixnap.com/kb/helm-commands-cheat-sheet
 
-================you can connect to EKS cluster from cloud shell or local docker desktop
+===================================How to limit resources (cpu , volume, and memory) to pod?
+
+https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: myimage
+    resources:
+      requests:
+        cpu: 2
+        example.com/foo: 1
+      limits:
+        example.com/foo: 1
+
+================you can connect to EKS cluster from cloud shell or local docker desktop, & How to switch between k8s
+https://aptakube.com/blog/complete-guide-to-kubeconfig-kubernetes-contexts
+
+
+context: In Kubernetes world, the equivalent of the connection string is a Context . 
+The context contains all the information required to connect to a Kubernetes cluster, 
+such as the cluster hostname, port, authentication method, and so on.
+
+
+kubectl config get-contexts             # display list of contexts
+kubectl config current-context          # display the current-context
+kubectl config use-context docker-desktop  # set the default context to my-cluster-name
+
+
+
 
 How to connect from the local docker desktop-
 
