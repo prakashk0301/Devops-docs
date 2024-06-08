@@ -1,0 +1,329 @@
+terraform: IAC
+
+hcl or hashicorp langauge
+
+
+download: https://developer.hashicorp.com/terraform/install#windows
+(AMD64)
+
+configure AWS access & secret key
+
+aws configure
+
+
+
+create a folder on your system: 
+
+
+
+
+
+
+Main commands:
+  init          Prepare your working directory for other commands
+  validate      Check whether the configuration is valid
+  plan          Show changes required by the current configuration
+  apply         Create or update infrastructure
+  destroy       Destroy previously-created infrastructure
+
+All other commands:
+  console       Try Terraform expressions at an interactive command prompt
+  fmt           Reformat your configuration in the standard style
+  force-unlock  Release a stuck lock on the current workspace
+  get           Install or upgrade remote Terraform modules
+  graph         Generate a Graphviz graph of the steps in an operation
+  import        Associate existing infrastructure with a Terraform resource
+  login         Obtain and save credentials for a remote host
+  logout        Remove locally-stored credentials for a remote host
+  metadata      Metadata related commands
+  output        Show output values from your root module
+  providers     Show the providers required for this configuration
+  refresh       Update the state to match remote systems
+  show          Show the current state or a saved plan
+  state         Advanced state management
+  taint         Mark a resource instance as not fully functional
+  test          Execute integration tests for Terraform modules
+
+
+======================How to search on google
+
+terrafrom aws <resource name> resources
+
+ex: terrafrom aws vpc resources
+terrafrom aws ecr resources
+terrafrom aws s3 resources
+
+
+vi main.tf 
+
+
+
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+
+
+  tags = {
+    Name = "main"
+  }
+}
+
+
+
+
+terraform validate
+terraform plan    ---> we can generate execution output before resource creation
+
+or
+
+terraform plan -out vpc.json
+
+***we can share the output with higher authority or review the output before apply
+
+
+terraform apply
+
+the type yes to acccpet.
+
+
+terraform destroy        -----> delete the resources created by terraform
+
+
+***how to call/run specific tf file
+
+
+vi ec2_aws.tf
+
+resource "aws_instance" "server"  {
+    count = 4 # create four similar EC2 instances  
+    ami           = "ami-a1b2c3d4"  
+    instance_type = "t2.micro"  
+
+    tags = {   
+      Name = "Server ${count.index}"  }
+}
+
+
+terraform init     ****if folder is new then run init command to initiliazed. no need to run if plugins are already present
+
+
+terraform fmt      ****to check the format
+
+
+
+
+syntax: terraform apply --target=<resource type>.<resource name>
+
+
+terraform apply --target=aws_instance.server
+
+terraform apply --target=aws_vpc.main
+
+
+
+
+
+
+How to delete specific resources from AWS
+
+syntax: terraform destroy --target=<resource type>.<resource name>
+
+
+terraform destroy --target=aws_instance.server
+
+
+
+
+=====================we can hardcode the value in our main tf file
+
+vi aws_ec2_vpc.tf
+
+resource "aws_vpc" "my_vpc" {
+  cidr_block = 172.16.10.0/24
+
+  tags = {
+    Name = "tf-example"
+  }
+}
+
+resource "aws_subnet" "my_subnet" {
+  vpc_id            = aws_vpc.my_vpc.id
+  cidr_block        = "172.16.10.0/24"
+  availability_zone = "ap-southeast-1a"
+
+  tags = {
+    Name = "tf-example"
+  }
+}
+
+resource "aws_network_interface" "foo" {
+  subnet_id   = aws_subnet.my_subnet.id
+  private_ips = ["172.16.10.100"]
+
+  tags = {
+    Name = "primary_network_interface"
+  }
+}
+
+resource "aws_instance" "foo" {
+  ami           = "ami-0b287aaaab87c114d" # ap-southeast-1
+  instance_type = var.instance_type
+
+  network_interface {
+    network_interface_id = aws_network_interface.foo.id
+    device_index         = 0
+  }
+
+
+}
+
+
+
+--------------------How to variable the code
+
+vi aws_ec2_vpc.tf
+
+
+resource "aws_vpc" "my_vpc" {
+  cidr_block = var.cidr_block    #
+
+  tags = {
+    Name = "tf-example"
+  }
+}
+
+resource "aws_subnet" "my_subnet" {
+  vpc_id            = aws_vpc.my_vpc.id
+  cidr_block        = var.cidr_block
+  availability_zone = var.availability_zone
+
+  tags = {
+    Name = "tf-example"
+  }
+}
+
+resource "aws_network_interface" "foo" {
+  subnet_id   = aws_subnet.my_subnet.id
+  private_ips = ["172.16.10.100"]
+
+  tags = {
+    Name = "primary_network_interface"
+  }
+}
+
+resource "aws_instance" "foo" {
+  ami           = "ami-0b287aaaab87c114d" # ap-southeast-1
+  instance_type = var.instance_type
+
+  network_interface {
+    network_interface_id = aws_network_interface.foo.id
+    device_index         = 0
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+vi var.rf
+
+variable "cidr_block" {
+  type = string
+  description = "cidr block value"
+  default = 172.16.10.0/24
+}
+
+
+variable "availability_zone" {
+  default = ap-southeast-1a
+}
+
+
+variable "instance_type" {
+  default = t2.micro
+}
+
+
+
+
+-----------------------
+
+
+vi aws_ecr.tf
+
+resource "aws_ecr_repository" "foo" {
+  name                 = "bar"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+
+==============Assignment: create terraform resource s3, eks(including control plane & workder node group)
+
+
+
+=============How to import state of existing resources
+Terraform can only maintain the resources which are created/managed by terraform
+https://spacelift.io/blog/importing-exisiting-infrastructure-into-terraform
+
+
+we can create aws s3 bucket: "kumardevopsfeb1"  then create a blank file so that terraform can maintain the state 
+
+vi main.tf
+
+resource "aws_s3_bucket" "kumardevopsfeb1" {
+  # (resource arguments)
+}
+
+
+
+syntax: terraform import <resource type>.<resource name> <resource name>
+terraform import aws_s3_bucket.kumardevopsfeb1 kumardevopsfeb1
+
+
+
+once state is imported you can maintain the resource using terraform.
+
+ex: let's try to add "tag"
+
+
+vi main.tf
+
+
+
+resource "aws_s3_bucket" "kumardevopsfeb1" {
+  # (resource arguments)
+  bucket = "kumardevopsfeb1"
+
+  tags = {
+    env = "dev"
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
