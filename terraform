@@ -338,7 +338,13 @@ https://spacelift.io/blog/terraform-jenkins
 https://blog.digger.dev/how-to-run-terraform-in-jenkins/
 
 
+========================How to deploy resources in diff aws region
+1. update var.tf & add region specific values
+2. add multiple region alias in provider.tf 
+3. call alias during command execution
 
+https://www.reddit.com/r/Terraform/comments/10y3op8/how_to_create_aws_resources_in_different_regions/?rdt=56531
+https://discuss.hashicorp.com/t/creating-aws-resources-with-terraform-across-multiple-regions/25010
 
 
 
