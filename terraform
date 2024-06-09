@@ -307,9 +307,35 @@ resource "aws_s3_bucket" "kumardevopsfeb1" {
     env = "dev"
     }
 
+
 }
 
 
+========================three tier architecture 
+
+https://towardsaws.com/aws-3-tier-architecture-63997b69ebc0
+https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/three-tier-architecture-overview.html
+
+ELB: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elb
+ec2: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
+sec group: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+RDS: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+
+
+=========================two tier architecture
+
+
+========================integrate jenkins & terraform  
+
+step1: install terraform plugin
+step2: download terraform on jenkins instance
+step3: add aws credetials
+step4: create and store terraform code in github
+step5: write jenkinsfile and add terraform stage
+
+
+https://spacelift.io/blog/terraform-jenkins
+https://blog.digger.dev/how-to-run-terraform-in-jenkins/
 
 
 
